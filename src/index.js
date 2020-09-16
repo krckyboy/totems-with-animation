@@ -1,25 +1,42 @@
 import "./styles.scss";
 
-const totem = document.querySelector(".totem");
-const contentContainer = totem.querySelector(".totem__content_wrapper");
-const itemHeight = contentContainer.querySelector(".totem__item").clientHeight;
+function totem({ totem, speed = 2000 }) {
+  const contentContainer = totem.querySelector(".totem__content_wrapper");
+  const itemHeight = contentContainer.querySelector(".totem__item")
+    .clientHeight;
 
-const numberOfVisibleItems = 4;
-const initialTranslateYValue =
-  -contentContainer.clientHeight + itemHeight * numberOfVisibleItems;
+  const initialTranslateYValue =
+    -contentContainer.clientHeight + itemHeight * 4;
 
-contentContainer.style.transform = `translateY(${initialTranslateYValue}px)`;
+  contentContainer.style.transform = `translateY(${initialTranslateYValue}px)`;
 
-const updatePosition = setInterval(() => {
-  const currentTranslateYValue = +contentContainer.style.transform.replace(
-    /[^\d.]/g,
-    ""
-  );
+  let currentTranslateYValue;
 
-  if (currentTranslateYValue > 0) {
-    const newValue = currentTranslateYValue - itemHeight;
-    contentContainer.style.transform = `translateY(${-newValue}px)`;
-  } else {
-    contentContainer.style.transform = `translateY(${initialTranslateYValue}px)`;
+  function animate() {
+    currentTranslateYValue = +contentContainer.style.transform.replace(
+      /[^\d.]/g,
+      ""
+    );
+
+    if (currentTranslateYValue > 0) {
+      const newValue = currentTranslateYValue - itemHeight;
+      contentContainer.style.transform = `translateY(${-newValue}px)`;
+    } else {
+      contentContainer.style.transform = `translateY(${initialTranslateYValue}px)`;
+    }
   }
-}, 2000);
+
+  let updatePosition = setInterval(animate, speed);
+
+  totem.addEventListener("mouseover", () => {
+    clearInterval(updatePosition);
+  });
+
+  totem.addEventListener("mouseleave", () => {
+    updatePosition = setInterval(animate, speed);
+  });
+}
+
+totem({
+  totem: document.querySelector(".totem")
+});
